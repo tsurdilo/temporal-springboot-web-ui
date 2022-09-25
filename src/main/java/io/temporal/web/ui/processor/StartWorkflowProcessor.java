@@ -38,8 +38,16 @@ public class StartWorkflowProcessor extends AbstractElementTagProcessor {
         final IEngineConfiguration configuration = templateContext.getConfiguration();
         IStandardExpressionParser parser = StandardExpressions.getExpressionParser(configuration);
         DialectUtils dialectUtils = new DialectUtils(workflowClient);
-
-//        structureHandler.setLocalVariable("startworkflow", dialectUtils.getClusterInfo());
+        structureHandler.setLocalVariable("defaultce",
+                "{\n" +
+                        "      \"specversion\" : \"1.0\",\n" +
+                        "      \"type\" : \"com.demo.customerevent\",\n" +
+                        "      \"source\" : \"/mydemo/9\",\n" +
+                        "      \"id\" : \"C234-1234-1234\",\n" +
+                        "      \"datacontenttype\" : \"application/json\",\n" +
+                        "      \"data\" : {\n" +
+                        "      }\n" +
+                        "  }");
 
         final IModelFactory modelFactory = templateContext.getModelFactory();
         final IModel model = modelFactory.createModel();

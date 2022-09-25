@@ -9,7 +9,13 @@
     <div class="card bg-light mb-3">
         <div class="card-header" style="background-color: #ABBAEA">
             <h4> Start Workflow Execution </h4>
+<!--            &nbsp;&nbsp;&nbsp;-->
+            <a class="btn btn-light float-right" data-toggle="collapse" href="#startwfinfo"
+               role="button" aria-expanded="false" aria-controls="startwfinfo">
+                Show/Hide
+            </a>
         </div>
+        <div class="collapse" id="startwfinfo">
         <div class="card-body">
             <form method="post" th:action="@{/startexec/}" th:object="${startInfo}">
                 <div class="form-row">
@@ -30,8 +36,10 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label for="inputjson">Workflow Input JSON</label>
-                        <textarea class="form-control" id="inputjson" rows="5"
-                                  th:field="*{inputJson}"></textarea>
+                        <textarea class="form-control" id="inputjson" rows="10"
+                                  th:field="*{inputJson}"
+                                  th:text="${defaultce}">
+                        </textarea>
                     </div>
 <!--                    <div class="form-group col-md-6">-->
 <!--                        <label for="namespace">Namespace</label>-->
@@ -42,6 +50,7 @@
                 <p><input type="submit" value="Start Exec" /> <input type="reset" value="Reset" /></p>
             </form>
         </div>
+        </div>
     </div>
 </div>
 
@@ -49,9 +58,15 @@
     <div class="card bg-light mb-3">
         <div class="card-header" style="background-color: #D2D5B8">
             <h4> Temporal Cluster Info </h4>
+<!--            &nbsp;&nbsp;&nbsp;-->
+            <a class="btn btn-light float-right" data-toggle="collapse" href="#clusterinfoid"
+               role="button" aria-expanded="false" aria-controls="clusterinfoid">
+                Show/Hide
+            </a>
         </div>
+        <div class="collapse" id="clusterinfoid">
         <div class="card-body">
-            <table class="table table-bordered">
+            <table class="table table-striped">
                 <thead>
                 <tr>
                     <th> Name</th>
@@ -75,6 +90,7 @@
                 </tbody>
             </table>
         </div>
+        </div>
     </div>
 </div>
 
@@ -84,7 +100,7 @@
             <h4> Workflow Executions </h4>
         </div>
         <div class="card-body">
-            <table class="table table-bordered">
+            <table class="table table-striped">
                 <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -106,11 +122,17 @@
                     <td><span th:text="${workflow.execution.runId}"> Run Id </span></td>
                     <td><span th:text="${workflow.status}"> Status </span></td>
                     <td>
-                        <button type="button" class="btn btn btn-light btn-sm"
+                        <button type="button" class="btn btn-info btn-sm"
                                 th:data-workflowId="${workflow.execution.workflowId}"
                                 th:data-runId="${workflow.execution.runId}"
                                 onclick="temporalWorkflowHistory(this.getAttribute('data-workflowId'),
                                 this.getAttribute('data-runId'));">View History
+                        </button>
+                        <button type="button" class="btn btn-warning btn-sm"
+                                th:data-workflowId="${workflow.execution.workflowId}"
+                                th:data-runId="${workflow.execution.runId}"
+                                onclick="temporalSignalWorkflow(this.getAttribute('data-workflowId'),
+                                this.getAttribute('data-runId'));">Signal Workflow
                         </button>
                     </td>
                 </tr>
@@ -119,6 +141,7 @@
         </div>
     </div>
     <div id="showhistorymodalholder"></div>
+    <div id="showsignalworkflowmodalholder"></div>
     <script>
         function temporalWorkflowHistory(workflowId, runId) {
             $.ajax({
@@ -126,6 +149,15 @@
                 success: function (data) {
                     $("#showhistorymodalholder").html(data);
                     $("#showhistorymodal1").modal("show");
+                }
+            });
+        }
+        function temporalSignalWorkflow(workflowId, runId) {
+            $.ajax({
+                url: "/temporalsignalworkflow/" + workflowId + "/" + runId,
+                success: function (data) {
+                    $("#showsignalworkflowmodalholder").html(data);
+                    $("#showsignalworkflowmodal1").modal("show");
                 }
             });
         }
@@ -150,6 +182,48 @@
                 <pre class="language-json match-braces line-numbers"><code th:text="${workflowhistory}">
                     </code></pre>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="showsignalworkflowmodal" class="modal" id="showsignalworkflowmodal1" tabindex="-1" role="dialog"
+     aria-labelledby="showsignallabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="showsignallabel">Signal Workflow</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                    <form method="post" th:action="@{/signalwf/}" th:object="${signalInfo}">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="workflowid1">Workflow Id</label>
+                            <input type="text" class="form-control" id="workflowid1"
+                                   th:field="*{workflowId}">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="workflowrunid1">Workflow Run Id</label>
+                            <input type="text" class="form-control" id="workflowrunid1"
+                                   th:field="*{workflowRunId}">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="signalname">Signal Name</label>
+                            <input type="text" class="form-control" id="signalname"
+                                   th:field="*{signalName}">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="inputjson">Workflow Input JSON</label>
+                            <textarea class="form-control" id="inputjson" rows="10"
+                                      th:field="*{signalJson}">
+                        </textarea>
+                        </div>
+                    </div>
+                    <p><input type="submit" value="Signal" /> <input type="reset" value="Reset" /></p>
+                </form>
             </div>
         </div>
     </div>

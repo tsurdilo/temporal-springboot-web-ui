@@ -20,7 +20,7 @@ public class TemporalWebDialect extends AbstractProcessorDialect {
 
     public TemporalWebDialect(ApplicationContext applicationContext, WorkflowClient workflowClient) {
         super(DIALECT_NAME,
-                "temporalweb",
+                "temporal",
                 StandardDialect.PROCESSOR_PRECEDENCE);
         this.applicationContext = applicationContext;
         this.workflowClient = workflowClient;
