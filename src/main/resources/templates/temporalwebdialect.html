@@ -29,10 +29,15 @@
                                th:field="*{taskQueue}">
                     </div>
                     <div class="form-group col-md-6">
-                        <label for="namespace">Namespace</label>
-                        <input type="text" class="form-control" id="namespace" placeholder=""
-                               th:field="*{namespace}">
+                        <label for="inputjson">Workflow Input JSON</label>
+                        <textarea class="form-control" id="inputjson" rows="5"
+                                  th:field="*{inputJson}"></textarea>
                     </div>
+<!--                    <div class="form-group col-md-6">-->
+<!--                        <label for="namespace">Namespace</label>-->
+<!--                        <input type="text" class="form-control" id="namespace" placeholder=""-->
+<!--                               th:field="*{namespace}">-->
+<!--                    </div>-->
                 </div>
                 <p><input type="submit" value="Start Exec" /> <input type="reset" value="Reset" /></p>
             </form>

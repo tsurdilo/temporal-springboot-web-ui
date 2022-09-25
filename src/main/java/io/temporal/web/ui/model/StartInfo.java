@@ -7,7 +7,7 @@ public class StartInfo {
     private String workflowType;
     private String workflowId;
     private String taskQueue;
-    private String namespace;
+    private String inputJson;
 
     public String getWorkflowType() {
         return workflowType;
@@ -33,11 +33,11 @@ public class StartInfo {
         this.taskQueue = taskQueue;
     }
 
-    public String getNamespace() {
-        return namespace;
+    public String getInputJson() {
+        return inputJson;
     }
 
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
+    public void setInputJson(String inputJson) {
+        this.inputJson = inputJson;
     }
 }

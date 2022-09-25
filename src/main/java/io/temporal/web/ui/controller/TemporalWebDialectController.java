@@ -1,6 +1,8 @@
 package io.temporal.web.ui.controller;
 
 import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
+import io.temporal.client.WorkflowStub;
 import io.temporal.web.ui.model.StartInfo;
 import io.temporal.web.ui.util.DialectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +35,14 @@ public class TemporalWebDialectController {
     @RequestMapping("/startexec")
     public String startExec(@ModelAttribute StartInfo startInfo,
                                        Model model) {
+        WorkflowStub workflowStub =
+                workflowClient.newUntypedWorkflowStub(startInfo.getWorkflowType(),
+                WorkflowOptions.newBuilder()
+                        .setTaskQueue(startInfo.getTaskQueue())
+                        .setWorkflowId(startInfo.getWorkflowId())
+                        .build());
+        workflowStub.start();
 
-        System.out.println("********* START: " + startInfo.getWorkflowId() + " - " +
-                startInfo.getWorkflowType());
         return "redirect:/";
     }
 
