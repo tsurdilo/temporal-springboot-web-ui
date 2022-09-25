@@ -14,16 +14,16 @@ import org.thymeleaf.standard.expression.IStandardExpressionParser;
 import org.thymeleaf.standard.expression.StandardExpressions;
 import org.thymeleaf.templatemode.TemplateMode;
 
-public class ListWorkflowsProcessor extends AbstractElementTagProcessor {
-    private static final String TAG_NAME = "listworkflows";
-    private static final String DEFAULT_FRAGMENT_NAME = "temporalwebdialect :: listworkflows";
+public class ClusterInfoProcessor extends AbstractElementTagProcessor {
+    private static final String TAG_NAME = "clusterinfo";
+    private static final String DEFAULT_FRAGMENT_NAME = "temporalwebdialect :: clusterinfo";
     private static final int PRECEDENCE = 10000;
 
     private final ApplicationContext ctx;
     private WorkflowClient workflowClient;
 
-    public ListWorkflowsProcessor(final String dialectPrefix, ApplicationContext ctx,
-                                  WorkflowClient workflowClient) {
+    public ClusterInfoProcessor(final String dialectPrefix, ApplicationContext ctx,
+                                WorkflowClient workflowClient) {
 
         super(TemplateMode.HTML, dialectPrefix, TAG_NAME, true, null, false, PRECEDENCE);
 
@@ -39,9 +39,7 @@ public class ListWorkflowsProcessor extends AbstractElementTagProcessor {
         IStandardExpressionParser parser = StandardExpressions.getExpressionParser(configuration);
         DialectUtils dialectUtils = new DialectUtils(workflowClient);
 
-        structureHandler.setLocalVariable("workflows", dialectUtils.listExecutions(
-                null, null
-        ));
+        structureHandler.setLocalVariable("clusterinfo", dialectUtils.getClusterInfo());
 
         final IModelFactory modelFactory = templateContext.getModelFactory();
         final IModel model = modelFactory.createModel();

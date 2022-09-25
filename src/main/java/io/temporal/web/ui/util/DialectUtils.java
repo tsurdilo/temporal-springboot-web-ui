@@ -1,11 +1,12 @@
 package io.temporal.web.ui.util;
 
 import com.google.protobuf.ByteString;
+import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.api.workflow.v1.WorkflowExecutionInfo;
-import io.temporal.api.workflowservice.v1.ListWorkflowExecutionsRequest;
-import io.temporal.api.workflowservice.v1.ListWorkflowExecutionsResponse;
+import io.temporal.api.workflowservice.v1.*;
 import io.temporal.client.WorkflowClient;
-import io.temporal.serviceclient.WorkflowServiceStubs;
+import io.temporal.internal.common.WorkflowExecutionHistory;
+import org.springframework.stereotype.Component;
 import org.thymeleaf.context.ITemplateContext;
 import org.thymeleaf.standard.expression.IStandardExpression;
 import org.thymeleaf.standard.expression.IStandardExpressionParser;
@@ -13,11 +14,21 @@ import org.thymeleaf.standard.expression.IStandardExpressionParser;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class DialectUtils {
-    public static final WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
-    public static final WorkflowClient client = WorkflowClient.newInstance(service);
+    private WorkflowClient client;
 
-    public static List<WorkflowExecutionInfo> listExecutions(ByteString token, List<WorkflowExecutionInfo> info) {
+    public DialectUtils(WorkflowClient client) {
+        this.client = client;
+    }
+
+    public GetClusterInfoResponse getClusterInfo() {
+        GetClusterInfoResponse res = client.getWorkflowServiceStubs().blockingStub().getClusterInfo(GetClusterInfoRequest.newBuilder()
+                .build());
+        return res;
+    }
+
+    public List<WorkflowExecutionInfo> listExecutions(ByteString token, List<WorkflowExecutionInfo> info) {
         ListWorkflowExecutionsRequest request;
         if(info == null) {
             info = new ArrayList<>();
@@ -36,7 +47,7 @@ public class DialectUtils {
                     .build();
         }
         ListWorkflowExecutionsResponse response =
-                service.blockingStub().listWorkflowExecutions(request);
+                client.getWorkflowServiceStubs().blockingStub().listWorkflowExecutions(request);
 
         info.addAll(response.getExecutionsList());
 
@@ -47,11 +58,24 @@ public class DialectUtils {
         }
     }
 
-    public static boolean isExpression(String value) {
+    public String getWorkflowHistory(String workflowId, String runId) {
+        GetWorkflowExecutionHistoryRequest request =
+                GetWorkflowExecutionHistoryRequest.newBuilder()
+                        .setNamespace("default") // hard-coded :(
+                        .setExecution(WorkflowExecution.newBuilder()
+                                .setWorkflowId(workflowId)
+                                .setRunId(runId)
+                                .build())
+                        .build();
+        return new WorkflowExecutionHistory(
+                client.getWorkflowServiceStubs().blockingStub().getWorkflowExecutionHistory(request).getHistory()).toJson(true);
+    }
+
+    public boolean isExpression(String value) {
         return value != null && value.startsWith("${") && value.endsWith("}");
     }
 
-    public static String getFragmentName(String value,
+    public String getFragmentName(String value,
                                          String defaulValue,
                                          IStandardExpressionParser parser,
                                          ITemplateContext templateContext) {
