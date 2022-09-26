@@ -3,6 +3,7 @@ package io.temporal.web.ui.dialect;
 import io.temporal.client.WorkflowClient;
 import io.temporal.web.ui.processor.ClusterInfoProcessor;
 import io.temporal.web.ui.processor.ListWorkflowsProcessor;
+import io.temporal.web.ui.processor.NavProcessor;
 import io.temporal.web.ui.processor.StartWorkflowProcessor;
 import org.springframework.context.ApplicationContext;
 import org.thymeleaf.dialect.AbstractProcessorDialect;
@@ -30,6 +31,8 @@ public class TemporalWebDialect extends AbstractProcessorDialect {
     public Set<IProcessor> getProcessors(final String dialectPrefix) {
         final Set<IProcessor> processors = new HashSet<>();
 
+        processors.add(new NavProcessor(dialectPrefix,
+                applicationContext, workflowClient));
         processors.add(new ListWorkflowsProcessor(dialectPrefix,
                 applicationContext, workflowClient));
         processors.add(new ClusterInfoProcessor(dialectPrefix,

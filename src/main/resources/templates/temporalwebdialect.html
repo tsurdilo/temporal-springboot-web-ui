@@ -134,6 +134,12 @@
                                 onclick="temporalSignalWorkflow(this.getAttribute('data-workflowId'),
                                 this.getAttribute('data-runId'));">Signal Workflow
                         </button>
+                        <button type="button" class="btn btn-secondary btn-sm"
+                                th:data-workflowId="${workflow.execution.workflowId}"
+                                th:data-runId="${workflow.execution.runId}"
+                                onclick="temporalQueryWorkflow(this.getAttribute('data-workflowId'),
+                                this.getAttribute('data-runId'));">Query Workflow
+                        </button>
                     </td>
                 </tr>
                 </tbody>
@@ -142,6 +148,7 @@
     </div>
     <div id="showhistorymodalholder"></div>
     <div id="showsignalworkflowmodalholder"></div>
+    <div id="showqueryworkflowmodalholder"></div>
     <script>
         function temporalWorkflowHistory(workflowId, runId) {
             $.ajax({
@@ -158,6 +165,15 @@
                 success: function (data) {
                     $("#showsignalworkflowmodalholder").html(data);
                     $("#showsignalworkflowmodal1").modal("show");
+                }
+            });
+        }
+        function temporalQueryWorkflow(workflowId, runId) {
+            $.ajax({
+                url: "/temporalqueryworkflow/" + workflowId + "/" + runId,
+                success: function (data) {
+                    $("#showqueryworkflowmodalholder").html(data);
+                    $("#showqueryworkflowmodal1").modal("show");
                 }
             });
         }
@@ -229,294 +245,88 @@
     </div>
 </div>
 
+<div th:fragment="showqueryworkflowmodal" class="modal" id="showqueryworkflowmodal1" tabindex="-1" role="dialog"
+     aria-labelledby="showquerylabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="showquerylabel">Query Workflow</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="queryform" method="get" th:object="${queryInfo}">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="workflowid1">Workflow Id</label>
+                            <input type="text" class="form-control" id="workflowid2"
+                                   th:field="*{workflowId}">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="workflowrunid1">Workflow Run Id</label>
+                            <input type="text" class="form-control" id="workflowrunid2"
+                                   th:field="*{workflowRunId}">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="queryname">Query Name</label>
+                            <input type="text" class="form-control" id="queryname"
+                                   th:field="*{queryName}">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="resultjson">Result</label>
+                            <textarea class="form-control" id="resultjson" rows="10"
+                                      th:field="*{result}">
+                        </textarea>
+                        </div>
+                    </div>
+                    <p>
+                        <button type="button" class="btn btn-secondary btn-sm"
+                                th:data-workflowId="${queryInfo.workflowId}"
+                                th:data-runId="${queryInfo.workflowRunId}"
+                                onclick="temporalQueryWorkflow2(this.getAttribute('data-workflowId'),
+                                this.getAttribute('data-runId'));">Query Workflow
+                        </button>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        function temporalQueryWorkflow2(workflowId, runId) {
+            $.ajax({
+                url: "/querywf/" + workflowId + "/" + runId + "/" + $("#queryname").val(),
+                success: function (data) {
+                    $("textarea#resultjson").val(data);
+                }
+            });
+        }
+    </script>
+</div>
 
-<!-- OLD -->
+<div th:fragment="shownav">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="https://github.com/temporalio/sdk-java" target="_blank">Temporal Java SDK</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-<!--<div th:fragment="startprocess">-->
-<!--    <div class="alert alert-success" role="alert" th:if="${startprocesserror == null}">-->
-<!--        <strong>Started process instance: <span th:text="${startedpid}" /></strong>-->
-<!--    </div>-->
-<!--    <div class="alert alert-danger" role="alert" th:if="${startprocesserror != null}">-->
-<!--        <strong>Error starting process instance: <span th:text="${startprocesserror}" /></strong>-->
-<!--    </div>-->
-<!--</div>-->
-
-<!--<div th:fragment="signalprocess">-->
-<!--    <div class="alert alert-info" role="alert" th:if="${signalprocesserror == null}">-->
-<!--        <strong>Signalled process instance: <span th:text="${signalledpid}" /></strong>-->
-<!--    </div>-->
-<!--    <div class="alert alert-danger" role="alert" th:if="${signalprocesserror != null}">-->
-<!--        <strong>Error signalling process instance: <span th:text="${signalprocesserror}" /></strong>-->
-<!--    </div>-->
-<!--</div>-->
-
-<!--<div id="processdefsdiv" th:fragment="showprocessdefs" style="border:1px solid black;">-->
-<!--    <div class="page-header">-->
-<!--        <h3>-->
-<!--            <center><strong>Process Definitions Info</strong></center>-->
-<!--        </h3>-->
-<!--    </div>-->
-<!--    <div th:if="${not #lists.isEmpty(processdefs)}">-->
-<!--        <table class="table table-striped">-->
-<!--            <thead>-->
-<!--            <tr>-->
-<!--                <th scope="col">#</th>-->
-<!--                <th scope="col">Id</th>-->
-<!--                <th scope="col">Name</th>-->
-<!--                <th scope="col">Version</th>-->
-<!--                <th scope="col">Package</th>-->
-<!--                <th scope="col">Type</th>-->
-<!--                <th scope="col">Deployment Id</th>-->
-<!--                <th scope="col">Action</th>-->
-<!--            </tr>-->
-<!--            </thead>-->
-<!--            <tbody>-->
-<!--            <tr th:each="processdef: ${processdefs}">-->
-<!--                <th scope="row" th:text="${processdefStat.count}" />-->
-<!--                <td th:text="${processdef.id}" />-->
-<!--                <td th:text="${processdef.name}" />-->
-<!--                <td th:text="${processdef.version}" />-->
-<!--                <td th:text="${processdef.packageName}" />-->
-<!--                <td th:text="${processdef.type}" />-->
-<!--                <td th:text="${processdef.deploymentId}" />-->
-<!--                <td>-->
-<!--                    <button type="button" class="btn btn-primary btn-sm"-->
-<!--                            th:data-deploymentId="${processdef.deploymentId}" th:data-id="${processdef.id}" onclick="ksdStartProcessInstance(this.getAttribute('data-deploymentId'),-->
-<!--                                this.getAttribute('data-id'));">Start-->
-<!--                    </button>-->
-<!--                </td>-->
-<!--            </tr>-->
-<!--            </tbody>-->
-<!--        </table>-->
-<!--    </div>-->
-<!--    <div class="alert alert-info" role="alert" th:if="${#lists.isEmpty(processdefs)}">-->
-<!--        <strong>No Process Definitions available.</strong>-->
-<!--    </div>-->
-<!--    <div id="startprocessmodalholder"></div>-->
-<!--    <script>-->
-<!--        function ksdStartProcessInstance(containerid, processid) {-->
-<!--            $.ajax({-->
-<!--                url: "/ksdstartprocess/" + processid + "/" + containerid,-->
-<!--                success: function (data) {-->
-<!--                    $("#startprocessmodalholder").html(data);-->
-<!--                    $("#startprocessmodal").modal("show");-->
-<!--                }-->
-<!--            });-->
-<!--        }-->
-
-<!--        function afterProcessStarted() {-->
-<!--            $('#startprocessmodal').modal('hide');-->
-<!--            location.reload();-->
-<!--        }-->
-<!--    </script>-->
-
-<!--</div>-->
-
-
-<!--<div id="processinstancesdiv" th:fragment="showprocessinstances" style="border:1px solid black;">-->
-<!--    <div class="page-header">-->
-<!--        <h3>-->
-<!--            <center><strong>Process Instances Info</strong></center>-->
-<!--        </h3>-->
-<!--    </div>-->
-<!--    <div th:if="${not #lists.isEmpty(processinstances)}">-->
-<!--        <table class="table table-striped">-->
-<!--            <thead>-->
-<!--            <tr>-->
-<!--                <th scope="col">#</th>-->
-<!--                <th scope="col">Id</th>-->
-<!--                <th scope="col">Name</th>-->
-<!--                <th scope="col">State</th>-->
-<!--                <th scope="col">Version</th>-->
-<!--                <th scope="col">Initiator</th>-->
-<!--                <th scope="col">Description</th>-->
-<!--                <th scope="col">Work on Tasks</th>-->
-<!--            </tr>-->
-<!--            </thead>-->
-<!--            <tbody>-->
-<!--            <tr th:each="processinst: ${processinstances}">-->
-<!--                <th scope="row" th:text="${processinstStat.count}"/>-->
-<!--                <td th:text="${processinst.getId()}"/>-->
-<!--                <td th:text="${processinst.getProcessName()}"/>-->
-<!--                <td th:text="${processinst.getState()}"/>-->
-<!--                <td th:text="${processinst.getProcessVersion()}"/>-->
-<!--                <td th:text="${processinst.getInitiator()}"/>-->
-<!--                <td th:text="${processinst.getProcessInstanceDescription()}"/>-->
-<!--                <td>-->
-<!--                    <ul>-->
-<!--                        <li th:each="createdtask : ${createdtasks.get(processinst.getId())}"-->
-<!--                            th:if="${createdtasks.get(processinst.getId()) != null}">-->
-<!--                            <a href="#"-->
-<!--                               th:data-deploymentId="${createdtask.getDeploymentId()}"-->
-<!--                               th:data-taskid="${createdtask.getTaskId()}"-->
-<!--                               onclick="ksdWorkOnTask(this.getAttribute('data-deploymentId'),-->
-<!--                            this.getAttribute('data-taskid'));return false;"-->
-<!--                               th:text="${createdtask.getName()}"/>-->
-<!--                        </li>-->
-<!--                    </ul>-->
-<!--                </td>-->
-<!--            </tr>-->
-<!--            </tbody>-->
-<!--        </table>-->
-<!--    </div>-->
-<!--    <div class="alert alert-info" role="alert" th:if="${#lists.isEmpty(processinstances)}">-->
-<!--        <strong>No Process Instances available.</strong>-->
-<!--    </div>-->
-<!--    <div id="workontasksmodalholder"></div>-->
-<!--    <script>-->
-<!--        function ksdWorkOnTask(containerid, taskid) {-->
-<!--            $.ajax({-->
-<!--                url: "/ksdworkontask/" + taskid + "/" + containerid,-->
-<!--                success: function (data) {-->
-<!--                    $("#workontasksmodalholder").html(data);-->
-<!--                    $("#workontaskmodal").modal("show");-->
-<!--                }-->
-<!--            });-->
-<!--        }-->
-
-<!--        function afterTaskCompleted() {-->
-<!--            $('#workontaskmodal').modal('hide');-->
-<!--            location.reload();-->
-<!--        }-->
-<!--    </script>-->
-<!--</div>-->
-
-
-<!--<div id="deploymentunitsdiv" th:fragment="showdeployedunits" style="border:1px solid black;">-->
-<!--    <div class="page-header">-->
-<!--        <h3>-->
-<!--            <center><strong>Deployment Units Info</strong></center>-->
-<!--        </h3>-->
-<!--    </div>-->
-<!--    <div th:if="${not #lists.isEmpty(deployedunits)}">-->
-<!--        <div class="card-deck">-->
-
-<!--            <div class="card mb-4">-->
-<!--                <div class="card-body" th:each="dunit: ${deployedunits}">-->
-<!--                    <p>-->
-<!--                        <strong><span th:text="'ID: ' + ${dunit.getDeploymentUnit().getIdentifier()}"></span></strong>-->
-<!--                        <br/><strong><span th:text="'Strategy: ' + ${dunit.getDeploymentUnit().getStrategy()}"></span></strong>-->
-<!--                        <br/><strong><span th:text="'Is Active: ' + ${dunit.getDeploymentUnit().isActive()}"></span></strong>-->
-<!--                        <br/><br/><strong>Deployed Assets: </strong>-->
-<!--                    <table class="table table-striped">-->
-<!--                        <thead>-->
-<!--                        <tr>-->
-<!--                            <th scope="col">#</th>-->
-<!--                            <th scope="col">Asset ID</th>-->
-<!--                            <th scope="col">Asset Name</th>-->
-<!--                            <th scope="col">Asset Version</th>-->
-<!--                            <th scope="col">Asset Type</th>-->
-<!--                        </tr>-->
-<!--                        </thead>-->
-<!--                        <tbody>-->
-<!--                        <tr th:each="dunitasset: ${dunit.getDeployedAssets()}">-->
-<!--                            <th scope="row" th:text="${dunitassetStat.count}"/>-->
-<!--                            <td th:text="${dunitasset.getId()}"/>-->
-<!--                            <td th:text="${dunitasset.getName()}"/>-->
-<!--                            <td th:text="${dunitasset.getVersion()}"/>-->
-<!--                            <td th:text="${dunitasset.getKnowledgeType()}"/>-->
-<!--                        </tr>-->
-<!--                        </tbody>-->
-<!--                    </table>-->
-<!--                    <br/><strong>Deployed Classes: </strong>-->
-<!--                    <table class="table table-striped">-->
-<!--                        <thead>-->
-<!--                        <tr>-->
-<!--                            <th scope="col">#</th>-->
-<!--                            <th scope="col">Class Name</th>-->
-<!--                            <th scope="col">Class Type</th>-->
-<!--                        </tr>-->
-<!--                        </thead>-->
-<!--                        <tbody>-->
-<!--                        <tr th:each="dunitclass: ${dunit.getDeployedClasses()}">-->
-<!--                            <th scope="row" th:text="${dunitclassStat.count}"/>-->
-<!--                            <td th:text="${dunitclass.getName()}"/>-->
-<!--                            <td th:text="${dunitclass.getTypeName()}"/>-->
-<!--                        </tr>-->
-<!--                        </tbody>-->
-<!--                    </table>-->
-<!--                    </p>-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--        </div>-->
-<!--    </div>-->
-<!--    <div class="alert alert-info" role="alert" th:if="${#lists.isEmpty(deployedunits)}">-->
-<!--        <strong>No Deployment Units available.</strong>-->
-<!--    </div>-->
-<!--</div>-->
-
-<!--<div id="processintancesimagediv" th:fragment="showprocessimages" style="border:1px solid black;">-->
-<!--    <div class="page-header">-->
-<!--        <h3>-->
-<!--            <center><strong>Process Instance Image</strong></center>-->
-<!--        </h3>-->
-<!--    </div>-->
-<!--    <center>-->
-<!--        <div class="dropdown">-->
-<!--            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">-->
-<!--                Select Process Instance-->
-<!--            </button>-->
-<!--            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="processinstancesdropdown">-->
-<!--                <th:block th:each="processinst: ${processinstances}">-->
-<!--                    <a class="dropdown-item" href="#" th:text="${processinst.getId()}"-->
-<!--                       th:data-deploymentid="${processinst.getDeploymentId()}"-->
-<!--                       th:data-id="${processinst.getId()}"-->
-<!--                       onclick="showProcessInstanceImage(this.getAttribute('data-deploymentid'),-->
-<!--                       this.getAttribute('data-id'));return false;"></a>-->
-<!--                </th:block>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--        <br/>-->
-<!--        <div class="embed-responsive" style="width: 100%; height: 400px;">-->
-<!--            <iframe id="processimageframe" class="embed-responsive-item" src=""></iframe>-->
-<!--        </div>-->
-<!--    </center>-->
-<!--    <script>-->
-<!--        function showProcessInstanceImage(deploymentid, processinstanceid) {-->
-<!--            var imageurl = "/rest/server/containers/" + deploymentid + "/images/processes/instances/" + processinstanceid;-->
-<!--            $("#processimageframe").attr('src', imageurl);-->
-<!--            return false;-->
-<!--        }-->
-<!--    </script>-->
-<!--</div>-->
-
-
-<!--<div class="modal fade" id="startprocessmodal" tabindex="-1" role="dialog" aria-labelledby="startprocesslabel" aria-hidden="true" th:fragment="startprocessmodal">-->
-<!--    <div class="modal-dialog" role="document">-->
-<!--        <div class="modal-content">-->
-<!--            <div class="modal-header">-->
-<!--                <h5 class="modal-title" id="startprocesslabel">Start business process</h5>-->
-<!--                <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
-<!--                    <span aria-hidden="true">&times;</span>-->
-<!--                </button>-->
-<!--            </div>-->
-<!--            <div class="modal-body">-->
-<!--                <div class="embed-responsive embed-responsive-21by9">-->
-<!--                    <iframe class="embed-responsive-item" th:src="${formlocation}"></iframe>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</div>-->
-
-<!--<div class="modal fade" id="workontaskmodal" tabindex="-1" role="dialog" aria-labelledby="workontasklabel" aria-hidden="true" th:fragment="workontaskmodal">-->
-<!--    <div class="modal-dialog" role="document">-->
-<!--        <div class="modal-content">-->
-<!--            <div class="modal-header">-->
-<!--                <h5 class="modal-title" id="workontasklabel">Work on Task</h5>-->
-<!--                <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
-<!--                    <span aria-hidden="true">&times;</span>-->
-<!--                </button>-->
-<!--            </div>-->
-<!--            <div class="modal-body">-->
-<!--                <div class="embed-responsive embed-responsive-21by9">-->
-<!--                    <iframe class="embed-responsive-item" th:src="${formlocation}"></iframe>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</div>-->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="http://localhost:8085/" target="_blank">Grafana</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="http://localhost:16686/" target="_blank">Jaeger</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="http://localhost:8081" target="_blank">Web UI</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</div>
 
 </body>
 </html>
