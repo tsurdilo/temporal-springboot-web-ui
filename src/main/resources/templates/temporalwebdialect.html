@@ -113,7 +113,7 @@
                 </thead>
                 <tbody>
                 <tr th:if="${workflows.empty}">
-                    <td colspan="2"> No Workflows Available</td>
+                    <td colspan="6"><center>No Workflows Executions Available</center></td>
                 </tr>
                 <tr th:each="workflow : ${workflows}">
                     <th scope="row" th:text="${workflowStat.count}"/>
@@ -140,6 +140,12 @@
                                 onclick="temporalQueryWorkflow(this.getAttribute('data-workflowId'),
                                 this.getAttribute('data-runId'));">Query Workflow
                         </button>
+                        <button type="button" class="btn btn btn btn-danger btn-sm"
+                                th:data-workflowId="${workflow.execution.workflowId}"
+                                th:data-runId="${workflow.execution.runId}"
+                                onclick="temporalGetResult(this.getAttribute('data-workflowId'),
+                                this.getAttribute('data-runId'));">Get Result
+                        </button>
                     </td>
                 </tr>
                 </tbody>
@@ -149,6 +155,7 @@
     <div id="showhistorymodalholder"></div>
     <div id="showsignalworkflowmodalholder"></div>
     <div id="showqueryworkflowmodalholder"></div>
+    <div id="showgetresultmodalholder"></div>
     <script>
         function temporalWorkflowHistory(workflowId, runId) {
             $.ajax({
@@ -174,6 +181,15 @@
                 success: function (data) {
                     $("#showqueryworkflowmodalholder").html(data);
                     $("#showqueryworkflowmodal1").modal("show");
+                }
+            });
+        }
+        function temporalGetResult(workflowId, runId) {
+            $.ajax({
+                url: "/temporalgetresult/" + workflowId + "/" + runId,
+                success: function (data) {
+                    $("#showgetresultmodalholder").html(data);
+                    $("#getresultmodal1").modal("show");
                 }
             });
         }
@@ -298,6 +314,60 @@
                 url: "/querywf/" + workflowId + "/" + runId + "/" + $("#queryname").val(),
                 success: function (data) {
                     $("textarea#resultjson").val(data);
+                }
+            });
+        }
+    </script>
+</div>
+
+<div th:fragment="getresultmodal" class="modal" id="getresultmodal1" tabindex="-1" role="dialog"
+     aria-labelledby="getresultlabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="getresultlabel">Get Result</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="getresultform" method="get" th:object="${queryInfo}">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="workflowid3">Workflow Id</label>
+                            <input type="text" class="form-control" id="workflowid3"
+                                   th:field="*{workflowId}">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="workflowrunid3">Workflow Run Id</label>
+                            <input type="text" class="form-control" id="workflowrunid3"
+                                   th:field="*{workflowRunId}">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="resultjson2">Result</label>
+                            <textarea class="form-control" id="resultjson2" rows="10"
+                                      th:field="*{result}">
+                        </textarea>
+                        </div>
+                    </div>
+                    <p>
+                        <button type="button" class="btn btn-secondary btn-sm"
+                                th:data-workflowId="${queryInfo.workflowId}"
+                                th:data-runId="${queryInfo.workflowRunId}"
+                                onclick="temporalGetResult2(this.getAttribute('data-workflowId'),
+                                this.getAttribute('data-runId'));">Get Result
+                        </button>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        function temporalGetResult2(workflowId, runId) {
+            $.ajax({
+                url: "/wfresult/" + workflowId + "/" + runId,
+                success: function (data) {
+                    $("textarea#resultjson2").val(data);
                 }
             });
         }

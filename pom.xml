@@ -26,6 +26,7 @@
     <java.module.name>${project.name}</java.module.name>
     <version.ch.qos.logback>1.2.6</version.ch.qos.logback>
     <version.commons.configuration>1.10</version.commons.configuration>
+    <version.cloudevents>2.4.0</version.cloudevents>
   </properties>
   <dependencies>
     <dependency>
@@ -55,6 +56,24 @@
       <groupId>commons-configuration</groupId>
       <artifactId>commons-configuration</artifactId>
       <version>${version.commons.configuration}</version>
+    </dependency>
+
+    <!-- CloudEvents -->
+
+    <dependency>
+      <groupId>io.cloudevents</groupId>
+      <artifactId>cloudevents-core</artifactId>
+      <version>${version.cloudevents}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.cloudevents</groupId>
+      <artifactId>cloudevents-api</artifactId>
+      <version>${version.cloudevents}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.cloudevents</groupId>
+      <artifactId>cloudevents-json-jackson</artifactId>
+      <version>${version.cloudevents}</version>
     </dependency>
     <!-- test depends -->
     <dependency>

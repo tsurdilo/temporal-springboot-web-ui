@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.cloudevents.CloudEvent;
+import io.cloudevents.core.provider.EventFormatProvider;
+import io.cloudevents.jackson.JsonFormat;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
@@ -59,6 +62,16 @@ public class TemporalWebDialectController {
         return "temporalwebdialect :: showqueryworkflowmodal";
     }
 
+    @RequestMapping("/temporalgetresult/{wfid}/{wfrunid}")
+    public String showGetResult(@PathVariable("wfid") String workflowId,
+                                    @PathVariable("wfrunid") String workflowRunId,
+                                    Model model) {
+        QueryInfo queryInfo = new QueryInfo();
+        queryInfo.setWorkflowId(workflowId);
+        queryInfo.setWorkflowRunId(workflowRunId);
+        model.addAttribute("queryInfo", queryInfo);
+        return "temporalwebdialect :: getresultmodal";
+    }
 
     @RequestMapping("/startexec")
     public String startExec(@ModelAttribute StartInfo startInfo,
@@ -125,14 +138,48 @@ public class TemporalWebDialectController {
                         Optional.of(workflowRunId),
                         Optional.empty());
 
-        Object obj = workflowStub.query(queryName, Object.class);
+        CloudEvent ce = workflowStub.query(queryName, CloudEvent.class);
 
-        String out = obj.toString();
-        // this be a big hack...fix
-        out = out.replace("CloudEvent","");
-        out = out.replace("JsonCloudEventData","");
-        out = out.replace("JsonData","");
-        return out;
+        String res = new String(EventFormatProvider
+                .getInstance()
+                .resolveFormat(JsonFormat.CONTENT_TYPE)
+                .serialize(ce));
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode resJson = mapper.readTree(res);
+
+            return resJson.toPrettyString();
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
+    }
+
+    @ResponseBody
+    @GetMapping("/wfresult/{wfid}/{wfrunid}")
+    public String getWfResult(@PathVariable("wfid") String workflowId,
+                          @PathVariable("wfrunid") String workflowRunId) {
+
+        WorkflowStub workflowStub =
+                workflowClient.newUntypedWorkflowStub(workflowId,
+                        Optional.of(workflowRunId),
+                        Optional.empty());
+
+        CloudEvent ce = workflowStub.getResult(CloudEvent.class);
+
+        String res = new String(EventFormatProvider
+                .getInstance()
+                .resolveFormat(JsonFormat.CONTENT_TYPE)
+                .serialize(ce));
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode resJson = mapper.readTree(res);
+
+            return resJson.toPrettyString();
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
